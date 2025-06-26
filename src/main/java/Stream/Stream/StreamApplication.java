@@ -1,32 +1,41 @@
 package Stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @SpringBootApplication
 public class StreamApplication implements CommandLineRunner {
 
 
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(StreamApplication.class);
 	public static void main(String[] args) {
 		SpringApplication.run(StreamApplication.class, args);
 	}
 
 	@Override
 	public void run(String... args) throws Exception {
+
 		List<Long> nombre = new ArrayList<>();
+		nombre.add(55L);
 		nombre.add(10L);
 		nombre.add(18L);
 		nombre.add(15L);
 		nombre.add(24L);
 		nombre.add(55L);
+
+		List<String> chaineList = new ArrayList<>();
+		chaineList.add("pomme");
+		chaineList.add("banane");
+		chaineList.add("fraise");
+		chaineList.add("poire");
+		String str = "Il pleut souvent En Normandie et en Normandie les vaches sont grasses.";
 
 		System.out.println("Liste de nombre :" + nombre);
 		List<Long> result = Ex1_1.filtreNombrepair(nombre);
@@ -43,7 +52,22 @@ public class StreamApplication implements CommandLineRunner {
 		System.out.println("Nombre Mutiliper par 2 avec Stream:" + result5);
 		Ex1_4.maxAndMinOfList(nombre);
 		Ex1_4.maxAndMinOfListWithStream(nombre);
-
+		Set<Long> result6 = Ex2_5.deleteDoublonOfList(nombre);
+		System.out.println("List sans doublon:" + result6);
+		Set<Long> result7 = Ex2_5.deleteDoublonOfListWithSteam(nombre);
+		System.out.println("List sans doublon avec Stream:" + result6);
+		Long result8 = Ex2_6.sumOfList(nombre);
+		System.out.println("Somme d'une liste :" + result8);
+		Long result9 = Ex2_6.sumOfListwithStream(nombre);
+		System.out.println("Somme d'une liste avec Stream :" + result9);
+		List<Integer> result10 = Ex2_7.convertirChaineEnNombre(chaineList);
+		System.out.println("Liste de chaine :" + chaineList);
+		System.out.println("Convertir une chaine de liste en longueur :" + result10);
+		List<Integer> result11 = Ex2_7.convertirChaineEnNombreWithStream(chaineList);
+		System.out.println("Convertir une chaine de liste en longueur avec Stream :" + result11);
+		System.out.println(str);
+		Ex2_8.compterOccurenceMotPhrase(str);
+		Ex2_8.countOccurenceMotPhraseWithStream(str);
 
 
 	}
@@ -101,11 +125,9 @@ public class StreamApplication implements CommandLineRunner {
 			return nombreMultiPar2;
 		}
 			public static List<Long> numberMutiplierFor2Stream(List <Long> nombres) {
-				    List<Long> listMutiplierforTwo = nombres.stream()
+				return nombres.stream()
 									.map(n -> n * 2)
 									.collect(Collectors.toList());
-
-				return listMutiplierforTwo;
 
 			}
 		}
@@ -142,7 +164,79 @@ public class StreamApplication implements CommandLineRunner {
 	// Supprimer mes doublons dans une liste
 	public class Ex2_5 {
 
+		public static Set<Long> deleteDoublonOfList(List<Long> nombres){
+
+			Set<Long> sansDoublons = new LinkedHashSet<>(nombres);
+				return sansDoublons;
+			}
+		public static Set<Long> deleteDoublonOfListWithSteam(List<Long> nombres){
+
+			return nombres.stream()
+					.distinct()
+					.collect(Collectors.toSet());
+		}
+
+
 	}
+	//Calculer la somme de tous les élements d'une liste
+	public class Ex2_6 {
+
+		public static Long sumOfList(List<Long> nombres){
+
+				Long sum = 0L;
+				for (Long n : nombres){
+					sum += n;
+				}
+				return sum;
+		}
+		public static Long sumOfListwithStream(List<Long> nombre) {
+
+			return nombre.stream().mapToLong(i -> i).sum();
+		}
+	}
+	//Convertir une liste de chaines de caractère en liste de leur longueur respective
+	public class Ex2_7 {
+
+		public static List<Integer> convertirChaineEnNombre(List<String> stringList){
+
+			List<Integer> chaineList = new ArrayList<>();
+			for(String s : stringList){
+				chaineList.add(s.length());
+			}
+			return chaineList;
+		}
+		public static List<Integer> convertirChaineEnNombreWithStream(List<String> stringList){
+
+			return stringList.stream()
+					.map(String::length)
+					.collect(Collectors.toList());
+		}
+	}
+	public class Ex2_8 {
+
+		public static void compterOccurenceMotPhrase(String str) {
+
+			String[] mots = str.toLowerCase().split("\\s+");
+			Map<String, Integer> occurence = new HashMap<>();
+
+			for(String mot : mots) {
+				occurence.put(mot, occurence.getOrDefault(mot,0) + 1);
+
+			}
+			for(Map.Entry<String, Integer> entry : occurence.entrySet()){
+				System.out.println(entry.getKey() + ":" + entry.getValue());
+			}
+
+		}
+		public static void countOccurenceMotPhraseWithStream(String str){
+
+			Arrays.stream(str.toLowerCase().split("\\s+"))
+					.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+					.forEach((mot, count) -> System.out.println("With Stream : "+ mot + " : "+ count));
+		}
+
+	}
+
 }
 
 
