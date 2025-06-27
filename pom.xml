@@ -38,6 +38,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>REPLACE_WITH_LATEST</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>com.h2database</groupId>

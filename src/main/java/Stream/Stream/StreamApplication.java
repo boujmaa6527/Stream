@@ -1,5 +1,8 @@
 package Stream.Stream;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -15,6 +18,7 @@ public class StreamApplication implements CommandLineRunner {
 
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(StreamApplication.class);
+
 	public static void main(String[] args) {
 		SpringApplication.run(StreamApplication.class, args);
 	}
@@ -22,6 +26,11 @@ public class StreamApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
+		Personne p1 = new Personne("rachid", 42);
+		Personne p2 = new Personne("boKazbor", 54);
+		Personne p3 = new Personne("Bonarnar", 34);
+		Personne p4 = new Personne("Bodarbala", 36);
+		Personne p5 = new Personne("attar", 54);
 		List<Long> nombre = new ArrayList<>();
 		nombre.add(55L);
 		nombre.add(10L);
@@ -36,6 +45,14 @@ public class StreamApplication implements CommandLineRunner {
 		chaineList.add("fraise");
 		chaineList.add("poire");
 		String str = "Il pleut souvent En Normandie et en Normandie les vaches sont grasses.";
+
+		List<Personne> listPersonne = new ArrayList<>();
+		listPersonne.add(p1);
+		listPersonne.add(p2);
+		listPersonne.add(p3);
+		listPersonne.add(p4);
+		listPersonne.add(p5);
+
 
 		System.out.println("Liste de nombre :" + nombre);
 		List<Long> result = Ex1_1.filtreNombrepair(nombre);
@@ -68,6 +85,23 @@ public class StreamApplication implements CommandLineRunner {
 		System.out.println(str);
 		Ex2_8.compterOccurenceMotPhrase(str);
 		Ex2_8.countOccurenceMotPhraseWithStream(str);
+		Ex3_9.trierListChaineOrdreAlPha(chaineList);
+		List<String> list = Ex3_9.trierListChaineOrdreAlPhaWithSteam(chaineList);
+		System.out.println("liste trier avec stream "+ list);
+		List<Personne> listPersonneAge = Ex3_10.trierListePersonneAge(listPersonne);
+		System.out.println("Trier Personne selon age: ");
+		for(Personne p : listPersonneAge){
+			System.out.println("Nom: "+ p.getNom()+" Age: " +p.getAge());
+		}
+		List<String> stringList = Ex3_11.listTrierParOrdreCroissant(chaineList);
+		System.out.println("Liste trie par ordre croissant: " +stringList);
+		List<String> stringList1 = Ex3_11.listTrierParOrdreCroissantWithStream(chaineList);
+		System.out.println("Liste trie par ordre croissant avec Stream: " +stringList1);
+		System.out.println("Trouver les 3 plus grande valeur distinct");
+		Ex3_12.findThreeMaxDistinc(nombre);
+		System.out.println("Trouver les 3 plus grande valeur distinct avec STREAM STREAM STREAM");
+		Ex3_12.findTreeMaxDistincWithStream(nombre);
+
 
 
 	}
@@ -212,6 +246,7 @@ public class StreamApplication implements CommandLineRunner {
 					.collect(Collectors.toList());
 		}
 	}
+	//Comparer les occurences de chaque mot dans une phrase
 	public class Ex2_8 {
 
 		public static void compterOccurenceMotPhrase(String str) {
@@ -233,6 +268,129 @@ public class StreamApplication implements CommandLineRunner {
 			Arrays.stream(str.toLowerCase().split("\\s+"))
 					.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
 					.forEach((mot, count) -> System.out.println("With Stream : "+ mot + " : "+ count));
+		}
+
+	}
+	//Trier une liste de chaine pa odredre alphabetique
+	public class Ex3_9{
+
+		public static void trierListChaineOrdreAlPha(List<String> stringList){
+
+			Collections.sort(stringList);
+			System.out.println("Liste trié par ordre alphabétique: ");
+				for (String str : stringList){
+					System.out.println(str);
+				}
+
+		}
+		public static List<String> trierListChaineOrdreAlPhaWithSteam(List<String> stringList){
+
+			 return  stringList.stream()
+					.sorted()
+					.toList();
+
+		}
+
+
+
+
+
+	}
+
+	//trier uen liste d'objet (par exemple : liste de personne par age)
+	public class Personne{
+
+
+		@Id
+		private String nom;
+		private int age;
+
+		public String getNom() {
+			return nom;
+		}
+
+		public void setNom(String nom) {
+			this.nom = nom;
+		}
+
+		public int getAge() {
+			return age;
+		}
+
+		public void setAge(int age) {
+			this.age = age;
+		}
+
+
+		public Personne(String nom, int age) {
+			this.nom = nom;
+			this.age = age;
+		}
+
+	}
+
+	public class Ex3_10{
+
+		public static List<Personne> trierListePersonneAge(List<Personne> personneList){
+
+			Collections.sort(personneList, new Comparator<Personne>() {
+				@Override
+				public int compare(Personne p1, Personne p2) {
+					return p1.getAge() - p2.getAge();
+				}
+			});
+			return personneList;
+		}
+
+
+	}
+	public class Ex3_11 {
+
+		public static List<String> listTrierParOrdreCroissant(List<String> stringList)  {
+
+			Set<String> ensembleMots = new HashSet<>(stringList);
+
+			List<String> motsUnique = new ArrayList<>(ensembleMots);
+			motsUnique.sort(Comparator.comparing(String::length));
+			return  motsUnique;
+
+		}
+		public static List<String> listTrierParOrdreCroissantWithStream(List<String> stringList){
+			return stringList.stream()
+					.distinct()
+					.sorted(Comparator.comparing(String::length))
+					.collect(Collectors.toList());
+
+		}
+
+
+	}
+	public class Ex3_12 {
+
+		public static void findThreeMaxDistinc(List<Long> longList){
+
+			int count = 0;
+			Set<Long> distinct = new TreeSet<>(Collections.reverseOrder());
+
+			for(Long val : longList){
+				distinct.add(val);
+			}
+
+			for(Long val : distinct){
+				System.out.println(val);
+				count++;
+				if(count == 3) break;
+			}
+		}
+		public static void findTreeMaxDistincWithStream(List<Long> longList){
+
+			TreeSet<Long> trieDesc = new TreeSet<>(Collections.reverseOrder());
+			trieDesc.addAll(longList);
+
+			List<Long> top3 =   trieDesc.stream()
+										.limit(3)
+										.toList();
+			System.out.println(top3);
 		}
 
 	}
